@@ -84,7 +84,7 @@ public class FileOpener extends CordovaPlugin {
             if (extension != null) {
                 String  fileURL = args.getString(0);
                 boolean cached = true;
-                if (args.length > 0){
+                if (args.size() > 0){
                     cached = args.getBoolean(1);
                 }
                 if (fileURL.startsWith("file://")) {
