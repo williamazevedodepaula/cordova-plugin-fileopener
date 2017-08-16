@@ -82,7 +82,11 @@ public class FileOpener extends CordovaPlugin {
             return true;
         } else if ("openFile".equals(action)) {
             if (extension != null) {
-                String fileURL = args.getString(0);
+                String  fileURL = args.getString(0);
+                boolean cached = true;
+                if (args.length > 0){
+                    cached = args.getBoolean(1);
+                }
                 if (fileURL.startsWith("file://")) {
                     // Local file uri (case of an already downloaded file)
                     Log.d(FILE_OPENER, "Opening file from local URI as it begins with file://");
@@ -92,7 +96,7 @@ public class FileOpener extends CordovaPlugin {
                     this.openFile(uri, extension, context, callbackContext);
                 } else {
                     try {
-                        this.downloadAndOpenFile(context, fileURL, callbackContext);
+                        this.downloadAndOpenFile(context, fileURL, cached, callbackContext);
                     } catch (UnsupportedEncodingException e) {
                         throw new RuntimeException(e);
                     }
@@ -162,12 +166,12 @@ public class FileOpener extends CordovaPlugin {
         }
     }
 
-    private void downloadAndOpenFile(final Context context, final String fileUrl, final CallbackContext callbackContext) throws UnsupportedEncodingException {
+    private void downloadAndOpenFile(final Context context, final String fileUrl,final boolean cached, final CallbackContext callbackContext) throws UnsupportedEncodingException {
         final String filename = URLDecoder.decode(fileUrl.substring(fileUrl.lastIndexOf("/") + 1), "UTF-8");
         final String extension = fileUrl.substring(fileUrl.lastIndexOf("."));
         final File tempFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), filename);
 
-        if (tempFile.exists()) {
+        if (cached && tempFile.exists()) {
             try {
                 openFile(Uri.fromFile(tempFile), extension, context, callbackContext);
             } catch (JSONException e) {
